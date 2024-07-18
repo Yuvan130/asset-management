@@ -1,0 +1,53 @@
+extends ../layout
+
+block content
+  h1 Scrap Asset
+  form#scrapAssetForm
+    .form-group
+      label(for='asset') Asset
+      select#asset.form-control(name='asset', required)
+        option(value='') Select an asset
+        each asset in assets
+          option(value=asset.id)= `${asset.serialNumber} - ${asset.make} ${asset.model}`
+    .form-group
+      label(for='reason') Reason for Scrapping
+      select#reason.form-control(name='reason', required)
+        option(value='') Select a reason
+        option(value='obsolete') Obsolete
+        option(value='damaged') Damaged Beyond Repair
+        option(value='lost') Lost or Stolen
+        option(value='other') Other
+    .form-group
+      label(for='notes') Notes
+      textarea#notes.form-control(name='notes')
+    button.btn.btn-primary(type='submit') Scrap Asset
+
+block scripts
+  script.
+    $(document).ready(function() {
+      $('#scrapAssetForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Serialize form data
+        var formData = $(this).serialize();
+        
+        // AJAX request
+        $.ajax({
+          type: 'POST',
+          url: '/scrap', // Adjust URL as per your route
+          data: formData,
+          success: function(response) {
+            // Handle success response
+            console.log('Asset scrapped successfully');
+            // Example: Display success message or redirect
+            // window.location.href = '/success'; // Redirect to success page
+          },
+          error: function(error) {
+            // Handle error response
+            console.error('Error scrapping asset:', error);
+            // Example: Display error message
+            // $('#errorMessage').text('Failed to scrap asset');
+          }
+        });
+      });
+    });

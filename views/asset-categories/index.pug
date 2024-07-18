@@ -1,0 +1,120 @@
+extends ../layout
+
+block content
+  h1 Asset Categories
+  button.btn.btn-primary.mb-3(data-toggle='modal', data-target='#addCategoryModal') Add Category
+  table#categoriesTable.table.table-striped
+    thead
+      tr
+        th ID
+        th Name
+        th Actions
+    tbody
+      each category in categories
+        tr
+          td= category.id
+          td= category.name
+          td
+            button.btn.btn-sm.btn-info.mr-2.edit-category(data-id=category.id) Edit
+            //button.btn.btn-sm.btn-danger.delete-category(data-id=category.id) Delete
+
+  // Add Category Modal
+  #addCategoryModal.modal.fade
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5.modal-title Add Category
+          button.close(data-dismiss='modal') &times;
+        .modal-body
+          form#addCategoryForm
+            .form-group
+              label(for='name') Name
+              input#name.form-control(type='text', name='name', required)
+        .modal-footer
+          button.btn.btn-secondary(data-dismiss='modal') Close
+          button.btn.btn-primary#addCategoryFormSubmit(type='submit') Add Category
+
+  // Edit Category Modal
+  #editCategoryModal.modal.fade
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5.modal-title Edit Category
+          button.close(data-dismiss='modal') &times;
+        .modal-body
+          form#editCategoryForm
+            input#id(type='hidden', name='id')
+            .form-group
+              label(for='editName') Name
+              input#name.form-control(type='text', name='name', required)
+        .modal-footer
+          button.btn.btn-secondary(data-dismiss='modal') Close
+          button.btn.btn-primary#editCategoryFormSubmit(type='submit') Save Changes
+
+block scripts
+  script.
+    $(document).ready(function() {
+      $('#categoriesTable').DataTable();
+
+      // Add Category Form Submission
+      $('#addCategoryFormSubmit').click(function(e) {
+        e.preventDefault();
+        $.ajax({
+          url: '/asset-categories',
+          method: 'POST',
+          data: $('#addCategoryForm').serialize(),
+          success: function(response) {
+            $('#addCategoryModal').modal('hide');
+            location.reload();
+          },
+          error: function(error) {
+            console.error('Error adding category:', error);
+          }
+        });
+      });
+
+      // Edit Category Button Click
+      $('.edit-category').click(function() {
+        var id = $(this).data('id');
+        $.get('/asset-categories/' + id, function(data) {
+          $('#editCategoryForm #id').val(data.id);
+          $('#editCategoryForm #name').val(data.name);
+          $('#editCategoryModal').modal('show');
+        });
+      });
+
+      // Edit Category Form Submission
+      $('#editCategoryFormSubmit').click(function(e) {
+        e.preventDefault();
+        var id = $('#editCategoryForm #id').val();
+        $.ajax({
+          url: '/asset-categories/' + id,
+          method: 'PUT',
+          data: $('#editCategoryForm').serialize(),
+          success: function(response) {
+            $('#editCategoryModal').modal('hide');
+            location.reload();
+          },
+          error: function(error) {
+            console.error('Error editing category:', error);
+          }
+        });
+      });
+
+      // Delete Category
+      $('.delete-category').click(function() {
+        if (confirm('Are you sure you want to delete this category?')) {
+          var id = $(this).data('id');
+          $.ajax({
+            url: '/asset-categories/' + id,
+            method: 'DELETE',
+            success: function(response) {
+              location.reload();
+            },
+            error: function(error) {
+              console.error('Error deleting category:', error);
+            }
+          });
+        }
+      });
+    });

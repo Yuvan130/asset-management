@@ -1,0 +1,49 @@
+extends ../layout
+
+block content
+  h1 Issue Asset
+  form#issueAssetForm
+    .form-group
+      label(for='asset') Asset
+      select#asset.form-control(name='asset', required)
+        option(value='') Select an asset
+        each asset in assets
+          option(value=asset.id)= `${asset.serialNumber} - ${asset.make} ${asset.model}`
+    .form-group
+      label(for='employee') Employee
+      select#employee.form-control(name='employee', required)
+        option(value='') Select an employee
+        each employee in employees
+          option(value=employee.id)= employee.name
+    button.btn.btn-primary(type='submit') Issue Asset
+
+block scripts
+  script.
+    $(document).ready(function() {
+      $('#issueAssetForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Serialize form data
+        var formData = $(this).serialize();
+        console.log(formData)
+        
+        // AJAX request
+        $.ajax({
+          type: 'POST',
+          url: '/issue', // Adjust URL as per your route
+          data: formData,
+          success: function(response) {
+            // Handle success response
+            console.log('Asset issued successfully');
+            // Example: Display success message or redirect
+            // window.location.href = '/success'; // Redirect to success page
+          },
+          error: function(error) {
+            // Handle error response
+            console.error('Error issuing asset:', error);
+            // Example: Display error message
+            // $('#errorMessage').text('Failed to issue asset');
+          }
+        });
+      });
+    });

@@ -1,0 +1,37 @@
+extends ../layout
+
+block content
+  h1 Stock View
+  table#stockTable.table.table-striped
+    thead
+      tr
+        th Category
+        th Count
+        th Total Value
+    tbody
+      each item in stock
+        tr
+          td= item.categoryName
+          td= item.count
+          td= Number(item.totalValue).toFixed(2)
+    tfoot
+      tr
+        th Total
+        th= stock.reduce((sum, item) => sum + item.count, 0)
+        th= Number(stock.reduce((sum, item) => sum + item.totalValue, 0)).toFixed(2)
+
+block scripts
+  script.
+    $(document).ready(function() {
+      if (!$.fn.DataTable.isDataTable('#stockTable')) {
+      $('#stockTable').DataTable({
+        "footerCallback": function(row, data, start, end, display) {
+          var api = this.api();
+          var totalCount = api.column(1).data().reduce((a, b) => parseInt(a) + parseInt(b), 0);
+          var totalValue = api.column(2).data().reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+          $(api.column(1).footer()).html(totalCount);
+          $(api.column(2).footer()).html(totalValue.toFixed(2));
+        }
+      });
+      }
+    });

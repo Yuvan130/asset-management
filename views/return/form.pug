@@ -1,0 +1,53 @@
+extends ../layout
+
+block content
+  h1 Return Asset
+  form#returnAssetForm
+    .form-group
+      label(for='asset') Asset
+      select#asset.form-control(name='asset', required)
+        option(value='') Select an asset
+        each asset in issuedAssets
+          option(value=asset.id)= `${asset.serialNumber} - ${asset.make} ${asset.model}`
+    .form-group
+      label(for='reason') Reason for Return
+      select#reason.form-control(name='reason', required)
+        option(value='') Select a reason
+        option(value='upgrade') Upgrade
+        option(value='repair') Repair
+        option(value='resignation') Employee Resignation
+        option(value='other') Other
+    .form-group
+      label(for='notes') Notes
+      textarea#notes.form-control(name='notes')
+    button.btn.btn-primary(type='submit') Return Asset
+
+block scripts
+  script.
+    $(document).ready(function() {
+      $('#returnAssetForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Serialize form data
+        var formData = $(this).serialize();
+        
+        // AJAX request
+        $.ajax({
+          type: 'POST',
+          url: '/return', // Adjust URL as per your route
+          data: formData,
+          success: function(response) {
+            // Handle success response
+            console.log('Asset returned successfully');
+            // Example: Display success message or redirect
+            // window.location.href = '/success'; // Redirect to success page
+          },
+          error: function(error) {
+            // Handle error response
+            console.error('Error returning asset:', error);
+            // Example: Display error message
+            // $('#errorMessage').text('Failed to return asset');
+          }
+        });
+      });
+    });
